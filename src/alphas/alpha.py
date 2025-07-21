@@ -1,6 +1,6 @@
 # alpha.py
 
-from backtest import Backtester
+from .backtest import Backtester
 
 # Base class for strategies involving future price lookups
 class FutureLookupStrategy(Backtester):
