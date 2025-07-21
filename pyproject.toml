@@ -9,7 +9,10 @@ description = "Algorithm design for \"optimal biased trading\"."
 authors = [{ name = "ilyaperepelitsa" }]
 dependencies = [
   "pandas",
-  "seaborn"
+  "seaborn",
+  "jupyter",
+  "ipykernel",
+  "click"
 ]
 
 [project.scripts]
