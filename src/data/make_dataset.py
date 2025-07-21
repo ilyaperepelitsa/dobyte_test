@@ -6,6 +6,7 @@ from dotenv import find_dotenv, load_dotenv
 
 from operator import itemgetter
 import json
+from datetime import datetime
 
 def load_data(filepath="../data/raw/data.json", top_n=0):
     """
@@ -20,7 +21,8 @@ def load_data(filepath="../data/raw/data.json", top_n=0):
     ticks1 = raw[1]["ticks"]
     # extract
     raw_ts = list(map(itemgetter(0), ticks0))
-    timestamps = list(map(lambda ts: ts / 1e6, raw_ts))
+    # timestamps = list(map(lambda ts: ts / 1e6, raw_ts))
+    timestamps = list(map(lambda ts: datetime.fromtimestamp(ts / 1e6), raw_ts))
 
     bids = list(map(itemgetter(1), ticks0))
     asks = list(map(itemgetter(1), ticks1))
