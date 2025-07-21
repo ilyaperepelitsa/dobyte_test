@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dobyte_test"
+version = "0.1.0"
+description = "Algorithm design for \"optimal biased trading\"."
+authors = [{ name = "ilyaperepelitsa" }]
+dependencies = [
+  "pandas",
+  "seaborn"
+]
+
+[project.scripts]
+dobyte_test = "cli:cli"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
