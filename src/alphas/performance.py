@@ -186,6 +186,30 @@ def calmar_ratio(returns, freq=None, axis=0, compound=False, annualization_facto
 def hit_rate(returns, axis=0):
     return np.mean(returns > 0, axis=axis)
 
+def long_only_hitrate(returns):
+    """
+    Ratio of positive bars to total (positives + negatives).
+
+    Parameters
+    ----------
+    returns : array‑like (1‑D or any shape)
+        Period returns.  NaNs and zeros are ignored in the count.
+
+    Returns
+    -------
+    float
+        pos_count / (pos_count + neg_count)
+        → np.nan if there are no non‑zero, non‑NaN observations.
+    """
+    r = np.asarray(returns).ravel()          # flatten to 1‑D
+    r = r[~np.isnan(r)]                      # drop NaNs
+
+    pos = np.count_nonzero(r > 0)
+    neg = np.count_nonzero(r < 0)
+
+    denom = pos + neg
+    return np.nan if denom == 0 else pos / denom
+
 def position_changes_with_drift(weights_array, position_returns, time_axis=0, instrument_axis=1):
     next_weights = np.roll(weights_array, -1, axis=time_axis)
     index = [slice(None)] * weights_array.ndim
