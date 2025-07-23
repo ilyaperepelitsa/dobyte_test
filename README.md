@@ -68,6 +68,7 @@ class FutureLookupStrategy(Strategy):
         return "hold"
 ```
 
+# Details on process and extra analysis
 
 ## Basic solution
 Naive strategy looks at the next bid and decides whether future bid is higher than current ask.\
