@@ -4,8 +4,9 @@ from typing import Sequence
 from .backtest import Strategy
 
 __all__ = [
-    "FutureLookupStrategy",  # default offset‑based strategy
-    "NthValueStrategy",      # explicit subclass example
+    "FutureLookupStrategy",
+    "NthValueStrategy",
+    "AggregatedFutureStrategy"
 ]
 
 
@@ -21,9 +22,6 @@ class FutureLookupStrategy(Strategy):
         # hard‑coded to 1‑bar look‑ahead
         self.offset: int = 1
 
-    # ---------------------------------------------------------------
-    # ••• Hook method •••
-    # ---------------------------------------------------------------
     def future_lookup(self, i: int, bid: Sequence[float], ask: Sequence[float]) -> tuple[float, float]:
         future_idx = min(i + self.offset, len(bid) - 1)
         return bid[future_idx], ask[future_idx]
