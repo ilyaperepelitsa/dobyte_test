@@ -245,7 +245,7 @@ Important point - other strategies have lower drawdowns than basic lookahead str
 
 
 
-Project Organization - Minimal
+Project Organization - Minimal (most relevant files)
 ------------
 
     ├── LICENSE
