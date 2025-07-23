@@ -8,6 +8,67 @@ As the result all backtest stats are not realistic.
 
 All the graphs and tables are just an example of strategy analysis that's a bit beyond the basic stats.
 
+# Final answer upfront 
+Strategy reached 1.42 cash at the end of an hour 
+
+<img src="reports/figures/final_equity_curve.png" alt="pnl" width="500">
+
+Strategy looks at 5th next value, if future bid is higher than current ask - buy.\
+if future ask is lower than current bid - sell.\
+Else hold.
+``` python
+class NthValueStrategy(FutureLookupStrategy):
+    """Look *exactly* ``offset`` bars ahead by overriding ``future_lookup``."""
+
+    def __init__(self, offset: int = 5):
+        super().__init__()
+        self.offset = offset
+
+    # ---------------------------------------------------------------
+    def future_lookup(self, i: int, bid: Sequence[float], ask: Sequence[float]) -> tuple[float, float]:
+        future_idx = min(i + self.offset, len(bid) - 1)
+        return bid[future_idx], ask[future_idx]
+
+```
+
+It inherits from base class:
+
+``` python
+class FutureLookupStrategy(Strategy):
+    """One‑step look‑ahead: always peeks **exactly** the next bar.
+
+    No arguments needed – this is the simplest oracle.  More flexible
+    variants should subclass and override ``future_lookup`` or change
+    ``self.offset``.
+    """
+
+    def __init__(self):
+        # hard‑coded to 1‑bar look‑ahead
+        self.offset: int = 1
+
+    def future_lookup(self, i: int, bid: Sequence[float], ask: Sequence[float]) -> tuple[float, float]:
+        future_idx = min(i + self.offset, len(bid) - 1)
+        return bid[future_idx], ask[future_idx]
+
+    # ---------------------------------------------------------------
+    def decide(
+        self,
+        i: int,
+        ts: Sequence,
+        bid: Sequence[float],
+        ask: Sequence[float],
+        cash: float,
+        shares: int,
+    ) -> str:
+        fut_bid, fut_ask = self.future_lookup(i, bid, ask)
+        if fut_bid > ask[i] and cash >= ask[i]:
+            return "buy"
+        if shares and fut_ask < bid[i]:
+            return "sell"
+        return "hold"
+```
+
+
 ## Basic solution
 Naive strategy looks at the next bid and decides whether future bid is higher than current ask.\
 If we're holding instruments and next ask is higher than current bid we sell. 
@@ -144,6 +205,30 @@ This is in compliance with the assignment.
  
 # Comparing backtest stats
 All strategies are biased, so the stats are not realistic.
+
+## Naive final cash value
+|                                     | nan   | max   | mean   | median   | min   |
+|-------------------------------------|-------|-------|--------|----------|-------|
+| ('AggregatedFutureStrategy', 2.0)   |       | 1.28  | 1.34   | 1.34     | 1.31  |
+| ('AggregatedFutureStrategy', 3.0)   |       | 1.28  | 1.38   | 1.37     | 1.31  |
+| ('AggregatedFutureStrategy', 4.0)   |       | 1.28  | 1.4    | 1.39     | 1.3   |
+| ('AggregatedFutureStrategy', 5.0)   |       | 1.28  | 1.42   | 1.4      | 1.29  |
+| ('AggregatedFutureStrategy', 10.0)  |       | 1.25  | 1.43   | 1.43     | 1.25  |
+| ('AggregatedFutureStrategy', 15.0)  |       | 1.23  | 1.42   | 1.4      | 1.22  |
+| ('AggregatedFutureStrategy', 30.0)  |       | 1.18  | 1.37   | 1.36     | 1.17  |
+| ('AggregatedFutureStrategy', 60.0)  |       | 1.14  | 1.29   | 1.3      | 1.12  |
+| ('AggregatedFutureStrategy', 120.0) |       | 1.09  | 1.22   | 1.23     | 1.08  |
+| ('FutureLookupStrategy', nan)       | 1.25  |       |        |          |       |
+| ('NthValueStrategy', 1.0)           | 1.25  |       |        |          |       |
+| ('NthValueStrategy', 2.0)           | 1.38  |       |        |          |       |
+| ('NthValueStrategy', 3.0)           | 1.41  |       |        |          |       |
+| ('NthValueStrategy', 4.0)           | 1.42  |       |        |          |       |
+| ('NthValueStrategy', 5.0)           | 1.42  |       |        |          |       |
+| ('NthValueStrategy', 10.0)          | 1.38  |       |        |          |       |
+| ('NthValueStrategy', 15.0)          | 1.33  |       |        |          |       |
+| ('NthValueStrategy', 30.0)          | 1.23  |       |        |          |       |
+| ('NthValueStrategy', 60.0)          | 1.16  |       |        |          |       |
+| ('NthValueStrategy', 120.0)         | 1.11  |       |        |          |       |
 
 ## Comparing Portfolio Efficiency Stats
 Portfolio efficiency for some windowed functions actually outperform `FutureLookupStrategy` and `NthValueStrategy`
