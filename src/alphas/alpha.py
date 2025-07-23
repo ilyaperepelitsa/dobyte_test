@@ -57,3 +57,37 @@ class NthValueStrategy(FutureLookupStrategy):
     def future_lookup(self, i: int, bid: Sequence[float], ask: Sequence[float]) -> tuple[float, float]:
         future_idx = min(i + self.offset, len(bid) - 1)
         return bid[future_idx], ask[future_idx]
+
+# ----------------------------------------------------------------------
+# Aggregation-based look-ahead (min / max / mean / custom)
+# ----------------------------------------------------------------------
+class AggregatedFutureStrategy(FutureLookupStrategy):
+    """
+    Look ahead *window* bars and aggregate the prices with *agg_fn*
+    (e.g. ``np.mean``, ``np.max``).
+
+    Parameters
+    ----------
+    window   : int
+        Number of future bars to aggregate.
+    agg_fn   : Callable[[Sequence[float]], float]
+        Aggregation function applied to the slice of prices.
+    """
+
+    def __init__(self, window: int = 3, agg_fn=sum) -> None:
+        super().__init__()
+        self.window: int = max(1, window)
+        self.agg_fn = agg_fn
+
+    # override only the peek logic – buying / selling logic stays inherited
+    def future_lookup(
+        self,
+        i: int,
+        bid: Sequence[float],
+        ask: Sequence[float],
+    ) -> tuple[float, float]:
+        start = i + 1
+        end = min(i + 1 + self.window, len(bid))
+        if start >= end:                                   # nothing ahead
+            return bid[-1], ask[-1]
+        return self.agg_fn(bid[start:end]), self.agg_fn(ask[start:end])
