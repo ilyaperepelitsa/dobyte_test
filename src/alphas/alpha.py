@@ -58,9 +58,7 @@ class NthValueStrategy(FutureLookupStrategy):
         future_idx = min(i + self.offset, len(bid) - 1)
         return bid[future_idx], ask[future_idx]
 
-# ----------------------------------------------------------------------
-# Aggregation-based look-ahead (min / max / mean / custom)
-# ----------------------------------------------------------------------
+
 class AggregatedFutureStrategy(FutureLookupStrategy):
     """
     Look ahead *window* bars and aggregate the prices with *agg_fn*
